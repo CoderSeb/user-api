@@ -1,12 +1,15 @@
 import express, { Express } from 'express'
+import { connectDb } from './config/dbConnection.js'
 import { indexRouter } from './routes/router.js'
 
-const run = () => {
+const run = async () => {
   const server: Express = express()
 
   const PORT: number = Number(process.env.PORT) || 5050
 
+  await connectDb()
   server.use(indexRouter)
+
 
   server.use((
     err: { status: number; message: string; stack: string },
