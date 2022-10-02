@@ -10,6 +10,4 @@ router.use('/user', userRouter)
 
 router.get('/', controller.index)
 
-
 export { router as apiRouter }
-

@@ -15,4 +15,3 @@ router.use('*', (req, res, next) => {
 })
 
 export { router as indexRouter }
-
