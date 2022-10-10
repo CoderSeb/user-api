@@ -11,6 +11,7 @@ router.post('/signup', controller.signUp)
 router.post('/signin', controller.signIn)
 router.put('/', getAndCheckToken, controller.change)
 router.delete('/', getAndCheckToken, controller.delete)
+router.get('/search', getAndCheckToken, controller.find)
 
 export { router as userRouter }
 
