@@ -64,6 +64,36 @@ class UserController {
       next(err)
     }
   }
+
+  async changeUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+      const { fName, lName, email, newPass, currentPass } = req.body
+      const { id } = res.locals.user
+      if (!currentPass) return next(createError(400, 'Bad request!'))
+      const user = await UserModel.findOne({ id: id })
+      if (!user) return next(createError(404, 'User not found!'))
+      user.comparePassword(currentPass, async (err: Error, isMatch: boolean) => {
+        if (err) return next(err)
+        if (!isMatch) return next(createError(401, 'Invalid credentials!'))
+        if (fName) {
+          user.fName = fName
+        }
+        if (lName) {
+          user.lName = lName
+        }
+        if (email) {
+          user.email = email
+        }
+        if (newPass) {
+          user.password = newPass
+        }
+        await user.save()
+        res.json({ message: 'User updated successfully!' })
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
 }
 
 export default UserController
