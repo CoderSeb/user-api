@@ -1,4 +1,4 @@
-name: NodeJS with Grunt
+name: NodeJS Express
 
 on:
   push:
@@ -30,3 +30,6 @@ jobs:
     
     - name: Start
       run: npm start
+      env:
+        JWT_PRIVATE: ${{ secrets.JWT_PRIVATE }}
+        DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
