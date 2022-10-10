@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "User API test case",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "main": "src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
