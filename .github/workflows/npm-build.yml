@@ -31,5 +31,5 @@ jobs:
     - name: Start
       run: npm start
       env:
-        JWT_PRIVATE: ${{ secrets.JWT_PRIVATE }}
-        DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+        JWT_PRIVATE: ${{ github-pages.JWT_PRIVATE }}
+        DB_CONNECTION_STRING: ${{ github-pages.DB_CONNECTION_STRING }}
