@@ -137,7 +137,7 @@ class UserController {
               },
               response: {
                 code: 200,
-                body: [] || {}
+                body: "[] || {}"
               }
             }
           ]
@@ -221,7 +221,6 @@ class UserController {
       const user = await UserModel.findOne({ id: id })
       if (!user) return next(createError(401, 'Unauthorized!'))
       const { email } = req.query
-
       if (!email) {
         await UserModel.find({})
           .lean()
