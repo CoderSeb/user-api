@@ -1,5 +1,6 @@
 import express from 'express'
 import createError from 'http-errors'
+import { TokenHandler } from '../helpers/tokenHandler.js'
 import { IUser, UserModel } from '../models/userModel.js'
 class UserController {
   async index(
@@ -48,10 +49,15 @@ class UserController {
       UserModel.findOne({ email }, (err: Error, user: IUser) => {
         if (err) return next(err)
         if (!user) return next(createError(401, 'Invalid credentials!'))
-        user.comparePassword(pass, (err: Error, isMatch: boolean) => {
+        user.comparePassword(pass, async (err: Error, isMatch: boolean) => {
           if (err) return next(err)
           if (!isMatch) return next(createError(401, 'Invalid credentials!'))
-          res.json({ message: 'User authenticated!' })
+          const tokenHandler = new TokenHandler()
+          const token = await tokenHandler.getAccessToken({
+            id: user._id,
+            email: user.email
+          })
+          res.json({ message: 'User authenticated!', accessToken: token })
         })
       })
     } catch (err) {
