@@ -6,6 +6,7 @@ export interface IUser extends mongoose.Document {
   lName: string
   email: string
   password: string
+  comparePassword: Function
 }
 
 const schema: mongoose.Schema<IUser> = new mongoose.Schema({
@@ -29,7 +30,7 @@ const schema: mongoose.Schema<IUser> = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 10
+    minlength: 8
   }
 })
 
@@ -49,8 +50,16 @@ schema.pre('save', function (next) {
   })
 })
 
+schema.methods.comparePassword = function (
+  pass: string,
+  callback: (err: Error | null, isMatch: boolean | null) => void
+) {
+  bcrypt.compare(pass, this.password, function (err, isMatch) {
+    if (err) return callback(err, null)
+    callback(null, isMatch)
+  })
+}
 
 const UserModel = mongoose.model<IUser>('User', schema)
 
 export { UserModel }
-
