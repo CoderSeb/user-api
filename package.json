@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/CoderSeb/user-api/issues"
   },
-  "homepage": "https://github.com/CoderSeb/user-api#readme",
+  "homepage": "https://coderseb.github.io/user-api",
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.14",
