@@ -9,7 +9,8 @@ const controller = new UserController()
 router.get('/', controller.index)
 router.post('/signup', controller.signUp)
 router.post('/signin', controller.signIn)
-router.put('/', getAndCheckToken, controller.changeUser)
+router.put('/', getAndCheckToken, controller.change)
+router.delete('/', getAndCheckToken, controller.delete)
 
 export { router as userRouter }
 

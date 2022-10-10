@@ -65,7 +65,7 @@ class UserController {
     }
   }
 
-  async changeUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+  async change(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
       const { fName, lName, email, newPass, currentPass } = req.body
       const { id } = res.locals.user
@@ -89,6 +89,23 @@ class UserController {
         }
         await user.save()
         res.json({ message: 'User updated successfully!' })
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async delete(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+      const { id } = res.locals.user
+      const { pass } = req.body
+      const user = await UserModel.findOne({ id: id })
+      if (!user) return next(createError(404, 'User not found!'))
+      user.comparePassword(pass, async (err: Error, isMatch: boolean) => {
+        if (err) return next(err)
+        if (!isMatch) return next(createError(401, 'Invalid credentials!'))
+        await user.delete()
+        res.sendStatus(204)
       })
     } catch (err) {
       next(err)
