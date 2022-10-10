@@ -9,7 +9,41 @@ class UserController {
     next: express.NextFunction
   ) {
     try {
-      res.json({ message: 'User route reached..' })
+      const userDocs = {
+        message: 'Newsflash User API',
+        endpoints: [
+          {
+            name: 'signUp',
+            method: 'POST',
+            path: '/signup',
+            body: {
+              firstName: 'string',
+              lastName: 'string',
+              email: 'string',
+              pass: 'string'
+            },
+            response: {
+              code: 201,
+              message: 'string'
+            }
+          },
+          {
+            name: 'signIn',
+            method: 'POST',
+            path: '/signin',
+            body: {
+              email: 'string',
+              pass: 'string'
+            },
+            response: {
+              code: 200,
+              message: 'string',
+              accessToken: 'string'
+            }
+          }
+        ]
+      }
+      res.json(userDocs)
     } catch (err) {
       next(err)
     }
@@ -57,7 +91,61 @@ class UserController {
             id: user._id,
             email: user.email
           })
-          res.json({ message: 'User authenticated!', accessToken: token })
+          const endpoints = [
+            {
+              name: 'change',
+              method: 'PUT',
+              path: '/',
+              header: {
+                Authorization: 'Bearer <accessToken>'
+              },
+              body: {
+                fName: 'string<optional>',
+                lName: 'string<optional>',
+                email: 'string<optional>',
+                newPass: 'string<optional>',
+                currentPass: 'string<mandatory>'
+              },
+              response: {
+                code: 200,
+                message: 'string'
+              }
+            },
+            {
+              name: 'delete',
+              method: 'DELETE',
+              path: '/',
+              header: {
+                Authorization: 'Bearer <accessToken>'
+              },
+              body: {
+                pass: 'string'
+              },
+              response: {
+                code: 204
+              }
+            },
+            {
+              name: 'search',
+              method: 'GET',
+              path: '/search',
+              header: {
+                Authorization: 'Bearer <accessToken>'
+              },
+              query: {
+                email: 'string<optional>'
+              },
+              response: {
+                code: 200,
+                body: [] || {}
+              }
+            }
+          ]
+          res.json({
+            message: 'User authenticated!',
+            accessToken: token,
+            endpoints
+          })
         })
       })
     } catch (err) {
@@ -65,37 +153,48 @@ class UserController {
     }
   }
 
-  async change(req: express.Request, res: express.Response, next: express.NextFunction) {
+  async change(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       const { fName, lName, email, newPass, currentPass } = req.body
       const { id } = res.locals.user
       if (!currentPass) return next(createError(400, 'Bad request!'))
       const user = await UserModel.findOne({ id: id })
       if (!user) return next(createError(404, 'User not found!'))
-      user.comparePassword(currentPass, async (err: Error, isMatch: boolean) => {
-        if (err) return next(err)
-        if (!isMatch) return next(createError(401, 'Invalid credentials!'))
-        if (fName) {
-          user.fName = fName
+      user.comparePassword(
+        currentPass,
+        async (err: Error, isMatch: boolean) => {
+          if (err) return next(err)
+          if (!isMatch) return next(createError(401, 'Invalid credentials!'))
+          if (fName) {
+            user.fName = fName
+          }
+          if (lName) {
+            user.lName = lName
+          }
+          if (email) {
+            user.email = email
+          }
+          if (newPass) {
+            user.password = newPass
+          }
+          await user.save()
+          res.json({ message: 'User updated successfully!' })
         }
-        if (lName) {
-          user.lName = lName
-        }
-        if (email) {
-          user.email = email
-        }
-        if (newPass) {
-          user.password = newPass
-        }
-        await user.save()
-        res.json({ message: 'User updated successfully!' })
-      })
+      )
     } catch (err) {
       next(err)
     }
   }
 
-  async delete(req: express.Request, res: express.Response, next: express.NextFunction) {
+  async delete(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       const { id } = res.locals.user
       const { pass } = req.body
@@ -107,6 +206,53 @@ class UserController {
         await user.delete()
         res.sendStatus(204)
       })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async find(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    try {
+      const { id } = res.locals.user
+      const user = await UserModel.findOne({ id: id })
+      if (!user) return next(createError(401, 'Unauthorized!'))
+      const { email } = req.query
+
+      if (!email) {
+        await UserModel.find({})
+          .lean()
+          .exec((err, users) => {
+            if (err) return next(err)
+            const jsonPackage = users.map((user) => {
+              return {
+                fName: user.fName,
+                lName: user.lName,
+                email: user.email
+              }
+            })
+            res.json(jsonPackage)
+          })
+      } else if (email) {
+        await UserModel.findOne({ email })
+          .lean()
+          .exec((err, user) => {
+            if (err) return next(err)
+            if (!user) {
+              res.json({})
+            } else {
+              const jsonPackage = {
+                fName: user.fName,
+                lName: user.lName,
+                email: user.email
+              }
+              res.json(jsonPackage)
+            }
+          })
+      }
     } catch (err) {
       next(err)
     }
