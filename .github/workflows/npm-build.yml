@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-   deploy:
+   deployment:
     runs-on: ubuntu-latest
     
     environment: github-pages
