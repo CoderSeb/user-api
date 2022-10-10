@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import express, { Express } from 'express'
+import logger from 'morgan'
 import { connectDb } from './config/dbConnection.js'
 import { indexRouter } from './routes/router.js'
 const run = async () => {
@@ -9,7 +10,7 @@ const run = async () => {
 
   await connectDb()
   server.use(bodyParser.json())
-
+  server.use(logger('dev'))
   server.use(indexRouter)
 
   server.use(

@@ -7,6 +7,7 @@ const controller = new UserController()
 
 router.get('/', controller.index)
 router.post('/signup', controller.signUp)
+router.post('/signin', controller.signIn)
 
 export { router as userRouter }
 
