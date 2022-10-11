@@ -10,3 +10,5 @@
 | ---- | ---- | Total: | 9.45 |
 
 [Live here](https://sebs-codetest-user-api.herokuapp.com/api)
+
+Go to [/api/user](https://sebs-codetest-user-api.herokuapp.com/api/user) to get more API documentation.
