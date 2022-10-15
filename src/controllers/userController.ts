@@ -89,10 +89,10 @@ class UserController {
           if (err) return next(err)
           if (!isMatch) return next(createError(401, 'Invalid credentials!'))
           const tokenHandler = new TokenHandler()
-          const token = await tokenHandler.getAccessToken({
+          const token = await tokenHandler.getToken({
             id: user._id,
             email: user.email
-          })
+          }, '1h')
           const endpoints = [
             {
               name: 'change',
@@ -204,6 +204,7 @@ class UserController {
       if (!user) return next(createError(404, 'User not found!'))
       user.comparePassword(pass, async (err: Error, isMatch: boolean) => {
         if (err) return next(err)
+        console.log(pass)
         if (!isMatch) return next(createError(401, 'Invalid credentials!'))
         await user.delete()
         res.sendStatus(204)
@@ -273,14 +274,14 @@ class UserController {
         user.generateReset()
         user.save()
         const tokenHandler = new TokenHandler()
-        const token = await tokenHandler.getResetToken({
+        const token = await tokenHandler.getToken({
           id: user._id,
           email: user.email
-        })
+        }, '20m')
         const mailOpt: IEmailOptions = {
           to: email,
           subject: 'Newsflash - Password Reset Link',
-          html: `<p>Reset code: ${user.resetCode}</p><br><p>Click <a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}">here</a> to reset your password.</p><br><p>If you did not request a password reset, please ignore this email.</p>`
+          html: `<p>Reset code: ${user.resetCode}</p><p>Click <a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}">here</a> to reset your password.</p><p>If you did not request a password reset, please ignore this email.</p>`
         }
         await sendEmail(mailOpt)
         res.send({ message: `Password reset link sent to ${email}!` })
@@ -290,7 +291,32 @@ class UserController {
     }
   }
 
-  
+  async passReset(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    try {
+      const { email } = res.locals.user
+      const { resetCode, newPass } = req.body
+      if (resetCode.toString().length !== 9) {
+        return next(createError(401, 'Invalid code!'))
+      }
+      UserModel.findOne({ email }, async (err: Error, user: IUser) => {
+        if (err) return next(err)
+        if (!user) return next(createError(404, 'User not found!'))
+        if (user.resetCode !== resetCode) {
+          return next(createError(401, 'Invalid code!'))
+        }
+        user.password = newPass
+        user.resetCode = 0
+        user.save()
+        res.send({ message: 'Password reset successfully!' })
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
 }
 
 export default UserController
