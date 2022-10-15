@@ -15,38 +15,30 @@ export interface ITokenInfo {
 
 export class TokenHandler {
   private privKey: string
+  private pubKey: string
 
   constructor() {
     this.privKey = Buffer.from(`${process.env.JWT_PRIVATE}`, 'base64').toString('ascii')
+    this.pubKey = Buffer.from(`${process.env.JWT_PUBLIC}`, 'base64').toString('ascii')
   }
 
-  public async getAccessToken(data: ITokenUserPayload) {
+  public async getToken(data: ITokenUserPayload, expires: string) {
     const signOptions: jwt.SignOptions = {
       issuer: 'Newsflash User API',
       algorithm: 'RS512',
-      expiresIn: '1h'
+      expiresIn: expires
     }
     const token = jwt.sign(data, this.privKey, signOptions)
     return token
   }
 
-  public async getResetToken(data: ITokenUserPayload) {
-    const signOptions: jwt.SignOptions = {
-      issuer: 'Newsflash User API',
-      algorithm: 'RS512',
-      expiresIn: '20m'
-    }
-    const token = jwt.sign(data, this.privKey, signOptions)
-    return token
-  }
-
-  public async verifyAccessToken(token: string): Promise<ITokenInfo> {
+  public async verifyToken(token: string): Promise<ITokenInfo> {
     try {
       const verifyOptions: jwt.VerifyOptions = {
         issuer: 'Newsflash User API',
         algorithms: ['RS512']
       }
-      const data = jwt.verify(token, this.privKey, verifyOptions)
+      const data = jwt.verify(token, this.pubKey, verifyOptions)
       return data as ITokenInfo
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
