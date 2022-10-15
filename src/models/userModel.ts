@@ -6,7 +6,9 @@ export interface IUser extends mongoose.Document {
   lName: string
   email: string
   password: string
+  resetCode: number
   comparePassword: Function
+  generateReset: Function
 }
 
 const schema: mongoose.Schema<IUser> = new mongoose.Schema({
@@ -31,6 +33,11 @@ const schema: mongoose.Schema<IUser> = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8
+  },
+  resetCode: {
+    type: Number,
+    length: 6,
+    default: 0
   }
 })
 
@@ -60,6 +67,15 @@ schema.methods.comparePassword = function (
   })
 }
 
+schema.methods.generateReset = function () {
+  let resetCode = ''
+  for (let i = 0; i < 9; i++) {
+    resetCode += Math.floor(Math.random() * 9)
+  }
+  this.resetCode = parseInt(resetCode)
+}
+
 const UserModel = mongoose.model<IUser>('User', schema)
 
 export { UserModel }
+
