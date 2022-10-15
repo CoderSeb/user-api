@@ -1,7 +1,9 @@
 import express from 'express'
 import createError from 'http-errors'
+import { IEmailOptions, sendEmail } from '../helpers/emailHandler.js'
 import { TokenHandler } from '../helpers/tokenHandler.js'
 import { IUser, UserModel } from '../models/userModel.js'
+
 class UserController {
   async index(
     req: express.Request,
@@ -256,6 +258,39 @@ class UserController {
       next(err)
     }
   }
+
+  async passResetLink(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    try {
+      const { email } = req.body
+
+      UserModel.findOne({ email }, async (err: Error, user: IUser) => {
+        if (err) return next(err)
+        if (!user) return next(createError(404, 'User not found!'))
+        user.generateReset()
+        user.save()
+        const tokenHandler = new TokenHandler()
+        const token = await tokenHandler.getResetToken({
+          id: user._id,
+          email: user.email
+        })
+        const mailOpt: IEmailOptions = {
+          to: email,
+          subject: 'Newsflash - Password Reset Link',
+          html: `<p>Reset code: ${user.resetCode}</p><br><p>Click <a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}">here</a> to reset your password.</p><br><p>If you did not request a password reset, please ignore this email.</p>`
+        }
+        await sendEmail(mailOpt)
+        res.send({ message: `Password reset link sent to ${email}!` })
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  
 }
 
 export default UserController
