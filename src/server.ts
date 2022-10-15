@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import express, { Express } from 'express'
+import rateLimit from 'express-rate-limit'
 import logger from 'morgan'
 import { connectDb } from './config/dbConnection.js'
 import { indexRouter } from './routes/router.js'
@@ -11,6 +12,18 @@ const run = async () => {
   await connectDb()
   server.use(bodyParser.json())
   server.use(logger('dev'))
+
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false
+  })
+
+  server.use(limiter)
+
+  server.set('trust proxy', 1)
+
   server.use(indexRouter)
 
   server.use(

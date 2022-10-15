@@ -62,7 +62,7 @@ class UserController {
             id: user._id,
             email: user.email
           }, '1h')
-          
+
           res.json({
             message: 'User authenticated!',
             accessToken: token
