@@ -30,6 +30,16 @@ export class TokenHandler {
     return token
   }
 
+  public async getResetToken(data: ITokenUserPayload) {
+    const signOptions: jwt.SignOptions = {
+      issuer: 'Newsflash User API',
+      algorithm: 'RS512',
+      expiresIn: '20m'
+    }
+    const token = jwt.sign(data, this.privKey, signOptions)
+    return token
+  }
+
   public async verifyAccessToken(token: string): Promise<ITokenInfo> {
     try {
       const verifyOptions: jwt.VerifyOptions = {
