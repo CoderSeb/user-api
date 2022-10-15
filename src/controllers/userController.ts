@@ -12,38 +12,7 @@ class UserController {
   ) {
     try {
       const userDocs = {
-        message: 'Newsflash User API',
-        endpoints: [
-          {
-            name: 'signUp',
-            method: 'POST',
-            path: '/signup',
-            body: {
-              firstName: 'string',
-              lastName: 'string',
-              email: 'string',
-              pass: 'string'
-            },
-            response: {
-              code: 201,
-              message: 'string'
-            }
-          },
-          {
-            name: 'signIn',
-            method: 'POST',
-            path: '/signin',
-            body: {
-              email: 'string',
-              pass: 'string'
-            },
-            response: {
-              code: 200,
-              message: 'string',
-              accessToken: 'string'
-            }
-          }
-        ]
+        message: 'Newsflash User API'
       }
       res.json(userDocs)
     } catch (err) {
@@ -93,60 +62,10 @@ class UserController {
             id: user._id,
             email: user.email
           }, '1h')
-          const endpoints = [
-            {
-              name: 'change',
-              method: 'PUT',
-              path: '/',
-              header: {
-                Authorization: 'Bearer <accessToken>'
-              },
-              body: {
-                fName: 'string<optional>',
-                lName: 'string<optional>',
-                email: 'string<optional>',
-                newPass: 'string<optional>',
-                currentPass: 'string<mandatory>'
-              },
-              response: {
-                code: 200,
-                message: 'string'
-              }
-            },
-            {
-              name: 'delete',
-              method: 'DELETE',
-              path: '/',
-              header: {
-                Authorization: 'Bearer <accessToken>'
-              },
-              body: {
-                pass: 'string'
-              },
-              response: {
-                code: 204
-              }
-            },
-            {
-              name: 'search',
-              method: 'GET',
-              path: '/search',
-              header: {
-                Authorization: 'Bearer <accessToken>'
-              },
-              query: {
-                email: 'string<optional>'
-              },
-              response: {
-                code: 200,
-                body: "[] || {}"
-              }
-            }
-          ]
+          
           res.json({
             message: 'User authenticated!',
-            accessToken: token,
-            endpoints
+            accessToken: token
           })
         })
       })
