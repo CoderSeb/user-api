@@ -39,6 +39,12 @@ const schema: mongoose.Schema<IUser> = new mongoose.Schema({
     length: 6,
     default: 0
   }
+}, {
+  timestamps: true
+})
+
+schema.virtual('id').get(function () {
+  return this._id.toHexString()
 })
 
 schema.pre('save', function (next) {

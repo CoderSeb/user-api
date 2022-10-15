@@ -23,3 +23,4 @@ const connectDb = () =>
   })
 
 export { connectDb }
+
